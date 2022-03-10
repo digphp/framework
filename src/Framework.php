@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace DigPHP\Framework;
 
+use Composer\Autoload\ClassLoader;
+use Composer\InstalledVersions;
 use DigPHP\Database\Db;
 use DigPHP\Psr11\Container;
 use DigPHP\Psr17\Factory;
+use DigPHP\Request\Request;
 use DigPHP\Router\Route;
 use DigPHP\Router\Router;
 use DigPHP\Session\Session;
 use DigPHP\Template\Template;
 use DigPHP\TinyApp\TinyApp;
-use Composer\Autoload\ClassLoader;
-use Composer\InstalledVersions;
 use ReflectionClass;
 
 class Framework
