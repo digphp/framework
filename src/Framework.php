@@ -34,7 +34,7 @@ class Framework
         $alias_file = self::getRoot() . '/config/alias.php';
         self::$tinyapp = new TinyApp(file_exists($alias_file) ? self::requireFile($alias_file) : []);
 
-        self::loadClass();
+        self::regPlugin();
         self::initTemplate();
 
         self::call('onInit');
@@ -129,8 +129,9 @@ class Framework
                 $list[$app] = $app;
             }
 
-            foreach (glob(self::getRoot() . '/app/*/*/src/library/App.php') as $file) {
-                $app = substr($file, strlen(self::getRoot() . '/app/'), -strlen('/src/library/App.php'));
+            foreach (glob(self::getRoot() . '/plugin/*/src/library/App.php') as $file) {
+                $app = substr($file, strlen(self::getRoot() . '/'), -strlen('/src/library/App.php'));
+
                 if (file_exists(self::getRoot() . '/config/' . $app . '/disabled.lock')) {
                     continue;
                 }
@@ -139,11 +140,7 @@ class Framework
                     continue;
                 }
 
-                $app_file = self::getRoot() . '/app/' . $app . '/src/library/App.php';
-                if (!file_exists($app_file)) {
-                    continue;
-                }
-                require $app_file;
+                require $file;
 
                 $class_name = str_replace(['-', '/'], ['', '\\'], ucwords('\\App\\' . $app . '\\App', '/\\-'));
                 if (
@@ -255,7 +252,7 @@ class Framework
         return $loader->load($file);
     }
 
-    private static function loadClass()
+    private static function regPlugin()
     {
         $loader = new ClassLoader();
         foreach (self::getAppList() as $app) {
@@ -264,7 +261,7 @@ class Framework
             }
             $loader->addPsr4(
                 str_replace(['-', '/'], ['', '\\'], ucwords('App\\' . $app . '\\', '/\\-')),
-                self::getRoot() . '/app/' . $app . '/src/library/'
+                self::getRoot() . '/' . $app . '/src/library/'
             );
         }
         $loader->register();
@@ -356,7 +353,7 @@ class Framework
                     if (InstalledVersions::isInstalled($app)) {
                         $template->addPath($app, InstalledVersions::getInstallPath($app) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'template');
                     } else {
-                        $template->addPath($app, self::getRoot() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'template', 99);
+                        $template->addPath($app, self::getRoot() . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'template', 99);
                     }
                     $template->addPath($app, self::getRoot() . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . $app, 99);
                 }
